@@ -1,21 +1,21 @@
 // Give Alan some knowledge about the world
-corpus(`
-    Hello, I'm Pizza Boy.
-    We are open 24/7.
-    we offer pizza and drinks.
-    in the pizza we offer four flavor chiken , fajita , chesse and spicy .
-    in the drinks we offer 3 drink Colacala , Sodalala , Limbo Pani.
-    I will help user to make order to help user , user may say order , what do you have in menu ? .
-    I'm Pizza Boy. I'm a virtual assistant. I'm here to help you your pizza.
-`);
+// corpus(`
+//     Hello, I'm Pizza Boy.
+//     We are open 24/7.
+//     we offer pizza and drinks.
+//     in the pizza we offer four flavor chiken , fajita , cheese and spicy .
+//     in the drinks we offer 3 drink Soda, Black Water , Lemon Water.
+//     I will help user to make order to help user , user may say order , what do you have in menu ? .
+//     I'm Pizza Boy. I'm a virtual assistant. I'm here to help you your pizza.
+// `);
 
 // Use this sample to create your own voice commands
 intent('(hello| hi)', p => {
-    p.play('(Hello|Hi ), How may I help you Today ?');
+    p.play('(Hello|Hi ), To start the conversation say order or help ?');
 });
 
 const drinkContext = context(() => {
-    follow("$(DRINK Colacala|Sodalala|Limbo Pani)", p => {
+    follow("$(DRINK Soda|Black Water|Lemon Water)", p => {
         if(p.state){ // for now let go with p.state
             p.play(`here is your ${p.state.qty} ${p.state.size} ${p.state.flavor} pizza and ${p.DRINK.value}`)
             p.resolve()
@@ -28,7 +28,7 @@ const drinkContext = context(() => {
 
 const drinkFollowUp = context(() => {
     intent("yes" , p => {
-        p.play('We have Colacala , Sodalala , Limbo Pani which one would you like go with ? ')
+        p.play('We have Soda, Black Water , Lemon Water which one would you like go with ? ')
         p.then(drinkContext , {state:{...p.state}})
     })
     intent("no" , p => {
@@ -49,7 +49,7 @@ const qtyContext = context(()=> {
 
 const sizeContext = context(()=>{
     follow("$(SIZE small|medium|large)", p =>{
-        p.play(`Ok ${p.state.flavor} pizza , Can you please tell me ,How many pizza would you like to have`)
+        p.play(`Ok ${p.SIZE.value} ${p.state.flavor} pizza , Can you please tell me ,How many pizza would you like to have`)
         p.then(qtyContext, {state:{size:p.SIZE.value,...p.state}})
     })
 })
@@ -58,24 +58,25 @@ const sizeContext = context(()=>{
 
 
 const falvorContext = context(() =>{    
-    follow("$(FLAVOR fajita|chicken|spicy|Chesse)", p => {
+    follow("$(FLAVOR fajita|chicken|spicy|cheese)", p => {
         p.play(`we have 3 sizes , small , medium , large. Which one you would like to choose ?`)
         p.then(sizeContext,{state:{flavor:p.FLAVOR.value}})
     })    
 })
 
-//     fallback("sorry i did not get it , Please tell me the flavor we have fajita , chicken , spicy , Chesse or to restart the conversation please say restart")
+//     fallback("sorry i did not get it , Please tell me the flavor we have fajita , chicken , spicy , cheese or to restart the conversation please say restart")
 
 
 const chooseMenu = context(() => {    
-    intent('$(MENU pizza|drink)',p => {
-    switch(p.MENU.value){
+    intent('(i want to order|get me) $(MENU pizza|drink)',p => {
+    const menu = p.MENU.value.toLowerCase()
+    switch(menu){
         case("pizza"):
-            p.play('We have 4 flavor of pizza fajita , chicken , spicy , Chesse which one would you like go with ? ')
+            p.play('We have 4 flavor of pizza fajita , chicken , spicy , cheese which one would you like go with ? ')
             p.then(falvorContext )
             break;
         case("drink"):
-            p.play('We have Colacala , Sodalala , Limbo Pani which one would you like go with ? ')
+            p.play('We have Soda, Black Water, Lemon Water which one would you like go with ? ')
             p.then(drinkContext )
         }
     })
@@ -100,6 +101,7 @@ intent('Cancel (the order|)', p => {
 question(
     'How does this work',
     'How to use this',
+    'help',
     'What can I do here',
     'What (should I|can I|to) say',
     'What commands are available',
